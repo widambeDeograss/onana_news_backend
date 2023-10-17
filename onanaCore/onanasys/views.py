@@ -52,17 +52,17 @@ class NewsArticlesView(APIView):
         querytype = request.GET.get("querytype")
         if querytype == "all":
             queryset = NewsArticles.objects.all()
-            serialized = NewsAgentsGetSerializer(instance=queryset, many=True)
+            serialized = NewsArticlesGetSerializer(instance=queryset, many=True)
             return Response(serialized.data)
         elif querytype == "provider":
             name = request.GET.get("name")
             queryset = NewsArticles.objects.filter(provider=name)
-            serialized = NewsAgentsGetSerializer(instance=queryset, many=True)
+            serialized = NewsArticlesGetSerializer(instance=queryset, many=True)
             return Response(serialized.data)
         elif querytype == "single":
             id = request.GET.get("id")
             article = NewsArticles.objects.get(id=id)
-            serialized = NewsAgentsGetSerializer(instance=article, many=True)
+            serialized = NewsArticlesGetSerializer(instance=article, many=True)
             return Response(serialized.data)
         else:
             return Response({"message": "Specify the querying type"})

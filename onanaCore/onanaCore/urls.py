@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/auth/', include('user_management.urls', namespace='user_management')),
+    path('api/auth0/', include('social_django.urls', namespace='social')),
     path('api/', include('onanasys.urls')),
 ]
 if settings.DEBUG:

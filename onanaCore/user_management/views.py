@@ -1,13 +1,57 @@
 from django.db.models import QuerySet
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from social_django.models import UserSocialAuth
+
 from .Serializers import UserSerializer, ChangePasswordSerializer
 from django.contrib.auth import authenticate, login, update_session_auth_hash
 from .tokens import get_user_token
 from .models import User
 from rest_framework.generics import UpdateAPIView
+
+from social_core.backends.google import GoogleOAuth2
+from social_core.exceptions import AuthException
+from social_django.utils import psa
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth.models import User
+
+
+class GoogleSocialAuthView(APIView):
+    authentication_classes = ()
+    permission_classes = ()
+
+    @psa('social:complete')
+    def post(self, request):
+        # Request data should contain the access_token obtained in the front-end
+        access_token = request.data.get('access_token')
+
+        if not access_token:
+            return Response({'error': 'Access token is missing.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            google_backend = GoogleOAuth2()
+            user = google_backend.do_auth(access_token)
+
+            # Check if a UserSocialAuth entry exists for this user
+            try:
+                social_user = UserSocialAuth.objects.get(provider='google-oauth2', uid=user.uid)
+                user = social_user.user
+            except UserSocialAuth.DoesNotExist:
+                # User not found, create a new user
+                user, created = User.objects.get_or_create(username=user.email)
+                if created:
+                    social_user = UserSocialAuth.create_user(request=None, user=user, uid=user.email, provider='google-oauth2')
+                    social_user.extra_data = google_backend.user_data(user.uid, access_token)
+                    social_user.save()
+
+            # Generate a JWT token
+            token = get_user_token(user)
+
+            return Response({'token': token}, status=status.HTTP_200_OK)
+        except AuthException:
+            return Response({'error': 'Authentication failed.'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class RegisterUser(APIView):

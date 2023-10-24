@@ -28,6 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'social_django',
     'user_management',
     'onanasys'
 ]
@@ -71,6 +73,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'onanaCore.wsgi.application'
 
+SOCIAL_AUTH_JSONFIELD_ENABLED = True
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -114,6 +117,20 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
+    'social_core.backends.twitter.TwitterOAuth',
+    'social_core.backends.facebook.FacebookOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '777594577354-66b9ns5gsjdl6k72sism18uvo936qcfp.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+SOCIAL_AUTH_TWITTER_KEY = 'your-twitter-consumer-key'
+SOCIAL_AUTH_TWITTER_SECRET = 'your-twitter-consumer-secret'
+SOCIAL_AUTH_FACEBOOK_KEY = '341029121810026'
+SOCIAL_AUTH_FACEBOOK_SECRET = '4b9eecbe9da0ae2c3218265a21f44092'
 
 
 # Internationalization
